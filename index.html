@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
 <meta name="theme-color" content="#f5e7c8" />
 <title>Ruthika & Kishor · 24 June 2026</title>
-<meta name="description" content="With the blessings of the Almighty, the Chintanpalli & Bhimanpalli families cordially invite you to celebrate the wedding of Ruthika & Kishor." />
+<meta name="description" content="With the blessings of the Almighty, the Bhimanpalli & Chintanpalli families cordially invite you to celebrate the wedding of Ruthika & Kishor." />
 
 <!-- Open Graph for WhatsApp previews -->
 <meta property="og:title" content="Ruthika & Kishor · 24 June 2026" />
@@ -350,6 +350,7 @@ a { color: inherit; text-decoration: none; }
   align-items: center;
   justify-content: center;
   color: var(--maroon);
+  cursor: pointer;
   backdrop-filter: blur(8px);
   transition: all 0.3s ease;
   box-shadow: 0 4px 20px rgba(74,20,24,0.18);
@@ -359,6 +360,10 @@ a { color: inherit; text-decoration: none; }
 .audio-toggle.playing { background: var(--gold-rich); color: var(--cream-light); }
 .audio-toggle.playing svg { animation: spin 4s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
+@keyframes audio-pulse {
+  0%, 100% { box-shadow: 0 4px 16px rgba(74,20,24,0.18), 0 0 0 0 rgba(217,171,63,0.55); }
+  50%      { box-shadow: 0 4px 16px rgba(74,20,24,0.18), 0 0 0 10px rgba(217,171,63,0); }
+}
 
 /* ============================================
    SECTION BASE
@@ -1015,7 +1020,7 @@ section {
    ============================================ */
 @media (max-width: 640px) {
   .countdown-grid { grid-template-columns: repeat(2, 1fr); }
-  .audio-toggle { top: 1rem; right: 1rem; width: 42px; height: 42px; }
+  .audio-toggle { bottom: 1rem; right: 1rem; width: 42px; height: 42px; }
   .muhurtham-content { padding: 1.5rem 1rem; }
   .couple-content { padding: 2rem 1rem; }
   .rsvp-btn { padding: 0.9rem 1.8rem; font-size: 0.72rem; }
@@ -1125,7 +1130,7 @@ section {
     <h2 class="event-title"><em>Haldi Ceremony</em></h2>
     <div class="ornament">✦ ❋ ✦</div>
     <div class="event-datetime">
-      Monday, June 22, 2025<br>
+      Monday, June 22, 2026<br>
       11:00 AM
     </div>
     <div class="event-venue-block">
@@ -1268,7 +1273,7 @@ section {
 
     <div class="rsvp-buttons reveal-up">
       <a class="rsvp-btn primary"
-         href="https://wa.me/919604345439?text=Namaste!%20I%20would%20be%20delighted%20to%20attend%20Kishor%20%26%20Ruthika's%20wedding%20on%2024th%20June%202026."
+         href="https://wa.me/919604345439?text=Namaste!%20I%20would%20be%20delighted%20to%20attend%20Ruthika%20%26%20Kishor's%20wedding%20on%2024th%20June%202026."
          target="_blank" rel="noopener">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
           <path d="M17.5 14.4c-.3-.1-1.7-.8-2-.9-.3-.1-.5-.1-.7.1-.2.3-.7.9-.9 1.1-.2.2-.3.2-.6.1-.3-.1-1.2-.5-2.3-1.4-.9-.8-1.4-1.7-1.6-2-.2-.3 0-.5.1-.6l.4-.5c.1-.2.2-.3.3-.5.1-.2 0-.3 0-.5s-.7-1.7-1-2.3c-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.4s1.1 2.8 1.2 3c.1.2 2.1 3.2 5.1 4.5.7.3 1.3.5 1.7.6.7.2 1.4.2 1.9.1.6-.1 1.7-.7 2-1.4.2-.7.2-1.2.2-1.4-.1-.1-.3-.2-.6-.3z"/>
