@@ -74,6 +74,24 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+/* ============================================
+   PAGE-LIKE SECTION SNAP
+   Each <section>/footer snaps into place on scroll.
+   Uses 'proximity' so users can still pause mid-section
+   when content is taller than the viewport.
+   ============================================ */
+html {
+  scroll-snap-type: y proximity;
+}
+section,
+footer {
+  scroll-snap-align: start;
+  scroll-snap-stop: normal;
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-snap-type: none; }
+}
 img { max-width: 100%; display: block; }
 button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; }
 a { color: inherit; text-decoration: none; }
@@ -212,6 +230,36 @@ a { color: inherit; text-decoration: none; }
   margin-bottom: 0.25rem;
 }
 
+/* ─── Get Directions button ──────────────────── */
+.directions-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-top: 0.9rem;
+  padding: 0.6rem 1.3rem;
+  font-family: var(--font-sacred);
+  font-size: 0.7rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--maroon);
+  background: linear-gradient(135deg, var(--cream-light) 0%, var(--cream-warm) 100%);
+  border: 1px solid var(--gold-rich);
+  border-radius: 999px;
+  box-shadow: 0 4px 14px rgba(184,134,46,0.18);
+  transition: all 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.directions-btn:hover {
+  transform: translateY(-2px);
+  color: var(--cream-light);
+  background: linear-gradient(135deg, var(--gold-deep) 0%, var(--gold-rich) 50%, var(--gold-bright) 100%);
+  box-shadow: 0 8px 22px rgba(184,134,46,0.4);
+}
+.directions-btn .pin {
+  font-size: 0.95rem;
+  line-height: 1;
+}
+
 /* Decorative ornament */
 .ornament {
   display: flex;
@@ -254,7 +302,7 @@ a { color: inherit; text-decoration: none; }
   background-size: 200% 100%;
   background-repeat: no-repeat;
   background-color: var(--cream-warm);
-  transition: transform 0.9s cubic-bezier(0.77, 0, 0.175, 1);
+  transition: transform 3.2s cubic-bezier(0.55, 0.05, 0.15, 1);
   position: relative;
   z-index: 2;
 }
@@ -263,7 +311,10 @@ a { color: inherit; text-decoration: none; }
 
 #loader.open .door-left  { transform: translateX(-105%); }
 #loader.open .door-right { transform: translateX(105%); }
-#loader.gone { pointer-events: none; opacity: 0; transition: opacity 0.7s ease 0.3s; }
+#loader.gone { pointer-events: none; opacity: 0; transition: opacity 0.9s ease 0.3s; }
+
+/* Lock background scroll while the loader is on screen */
+body.loader-active { overflow: hidden; touch-action: none; }
 
 .loader-center {
   position: absolute;
@@ -271,14 +322,44 @@ a { color: inherit; text-decoration: none; }
   text-align: center;
   color: var(--gold-rich);
 }
+/* Expanding gold aura behind the ॐ */
+.loader-center::before {
+  content: '';
+  position: absolute;
+  top: clamp(2.5rem, 7vw, 4rem);
+  left: 50%;
+  width: clamp(160px, 26vw, 260px);
+  height: clamp(160px, 26vw, 260px);
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(circle,
+              rgba(244,217,138,0.55) 0%,
+              rgba(201,169,97,0.18) 38%,
+              transparent 70%);
+  filter: blur(2px);
+  z-index: -1;
+  animation: loaderAura 3.4s ease-in-out infinite;
+}
+@keyframes loaderAura {
+  0%, 100% { transform: translate(-50%, -50%) scale(0.9); opacity: 0.55; }
+  50%      { transform: translate(-50%, -50%) scale(1.18); opacity: 1; }
+}
 .loader-om {
   font-family: var(--font-devanagari);
   font-size: clamp(4rem, 12vw, 7rem);
   color: var(--kumkum);
   text-shadow: 0 0 30px rgba(244,217,138,0.5), 0 0 60px rgba(201,169,97,0.3);
-  animation: omPulse 2.2s ease-in-out infinite;
   margin-bottom: 1rem;
   font-weight: 500;
+  opacity: 0;
+  transform: scale(0.6);
+  animation: omEnter 1.2s cubic-bezier(0.22, 1, 0.36, 1) 0.15s forwards,
+             omPulse 2.6s ease-in-out 1.4s infinite;
+}
+@keyframes omEnter {
+  0%   { opacity: 0; transform: scale(0.55) rotate(-6deg); filter: blur(8px); }
+  60%  { opacity: 1; transform: scale(1.08) rotate(0deg);  filter: blur(0); }
+  100% { opacity: 1; transform: scale(1) rotate(0deg);     filter: blur(0); }
 }
 @keyframes omPulse {
   0%, 100% { transform: scale(1); opacity: 0.95; }
@@ -290,8 +371,59 @@ a { color: inherit; text-decoration: none; }
   font-size: 0.75rem;
   text-transform: uppercase;
   color: var(--maroon);
-  opacity: 0.75;
+  opacity: 0;
+  transform: translateY(14px);
+  animation: loaderTextIn 1s ease 0.95s forwards;
+  position: relative;
+  display: inline-block;
+  padding: 0 1.6rem;
 }
+@keyframes loaderTextIn {
+  to { opacity: 0.85; transform: translateY(0); }
+}
+/* Twin sacred sparks that draw inward beside "Shubha Aarambham" */
+.loader-text::before,
+.loader-text::after {
+  content: '✦';
+  position: absolute;
+  top: 50%;
+  font-size: 0.7em;
+  color: var(--gold-rich);
+  opacity: 0;
+  transform: translateY(-50%);
+}
+.loader-text::before { left: -1.2rem; animation: loaderSparkL 1s ease 1.25s forwards; }
+.loader-text::after  { right: -1.2rem; animation: loaderSparkR 1s ease 1.25s forwards; }
+@keyframes loaderSparkL {
+  from { opacity: 0; transform: translate(-14px, -50%); }
+  to   { opacity: 0.9; transform: translate(0, -50%); }
+}
+@keyframes loaderSparkR {
+  from { opacity: 0; transform: translate(14px, -50%); }
+  to   { opacity: 0.9; transform: translate(0, -50%); }
+}
+.loader-hint {
+  margin-top: 1.6rem;
+  font-family: var(--font-sacred);
+  font-size: 0.7rem;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: var(--gold-rich);
+  opacity: 0;
+  animation: loaderHintIn 0.9s ease 1.7s forwards,
+             loaderHintPulse 2.4s ease-in-out 2.7s infinite;
+}
+@keyframes loaderHintIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 0.9; transform: translateY(0); }
+}
+@keyframes loaderHintPulse {
+  0%, 100% { opacity: 0.55; }
+  50%      { opacity: 1; }
+}
+#loader { cursor: pointer; }
+#loader.open { cursor: default; }
+#loader.open .loader-hint { opacity: 0; transition: opacity 0.4s ease; animation: none; }
 
 /* ============================================
    FLOATING PETALS (pink lotus + marigold)
@@ -341,8 +473,9 @@ a { color: inherit; text-decoration: none; }
   bottom: 1.5rem;
   right: 1.5rem;
   z-index: 100;
-  width: 52px;
-  height: 52px;
+  width: 48px;
+  height: 48px;
+  padding: 0;
   border-radius: 50%;
   background: rgba(253,246,231,0.95);
   border: 1.5px solid var(--gold-rich);
@@ -352,13 +485,29 @@ a { color: inherit; text-decoration: none; }
   color: var(--maroon);
   cursor: pointer;
   backdrop-filter: blur(8px);
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 20px rgba(74,20,24,0.18);
-  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.3s ease, color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+  box-shadow: 0 4px 16px rgba(74,20,24,0.18);
+  animation: audio-pulse 2.4s ease-in-out infinite;
 }
-.audio-toggle:hover { background: var(--gold-rich); color: var(--cream-light); transform: scale(1.08); }
-.audio-toggle.playing { background: var(--gold-rich); color: var(--cream-light); }
-.audio-toggle.playing svg { animation: spin 4s linear infinite; }
+.audio-toggle:hover,
+.audio-toggle:focus-visible {
+  background: var(--gold-rich);
+  color: var(--cream-light);
+  transform: scale(1.06);
+  outline: none;
+}
+.audio-toggle:active { transform: scale(0.96); }
+.audio-toggle .icon-play  { display: block; margin-left: 2px; }
+.audio-toggle .icon-pause { display: none; }
+.audio-toggle.playing .icon-play  { display: none; }
+.audio-toggle.playing .icon-pause { display: block; animation: spin 8s linear infinite; }
+.audio-toggle.playing {
+  background: var(--maroon);
+  color: var(--gold-bright);
+  border-color: var(--gold-bright);
+  animation: none;
+}
 @keyframes spin { to { transform: rotate(360deg); } }
 @keyframes audio-pulse {
   0%, 100% { box-shadow: 0 4px 16px rgba(74,20,24,0.18), 0 0 0 0 rgba(217,171,63,0.55); }
@@ -454,8 +603,10 @@ section {
   letter-spacing: 0.1em;
   margin-bottom: 1.25rem;
   opacity: 0;
-  animation: fadeUp 1.2s ease 0.4s forwards;
   font-weight: 500;
+}
+body.entered .hero-sanskrit {
+  animation: fadeUp 1.4s ease 0.25s forwards;
 }
 
 .hero-subtitle {
@@ -466,7 +617,9 @@ section {
   color: var(--maroon);
   margin-bottom: 2rem;
   opacity: 0;
-  animation: fadeUp 1.2s ease 0.6s forwards;
+}
+body.entered .hero-subtitle {
+  animation: fadeUp 1.4s ease 0.7s forwards;
 }
 
 .couple-names {
@@ -485,18 +638,34 @@ section {
 .couple-names .name {
   opacity: 0;
   transform: translateY(30px);
-  animation: fadeUp 1.4s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
-.couple-names .name:nth-child(1) { animation-delay: 0.9s; }
-.couple-names .name:nth-child(3) { animation-delay: 1.3s; }
+body.entered .couple-names .name {
+  animation: nameSweep 1.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+/* DOM order is: name, <br>, amp, <br>, name — so use of-type to pick the
+   second .name span reliably (works regardless of the <br> spacers). */
+body.entered .couple-names .name:first-of-type { animation-delay: 1.25s; }
+body.entered .couple-names .name:last-of-type  { animation-delay: 2.05s; }
 .couple-names .amp {
   font-family: var(--font-sacred);
   font-size: 0.32em;
   color: var(--gold-rich);
   opacity: 0;
-  animation: fadeUp 1.4s ease 1.1s forwards;
-  transform: translateY(-0.4em);
+  transform: translateY(-0.4em) scale(0.7);
   letter-spacing: 0;
+}
+body.entered .couple-names .amp {
+  animation: ampGlow 1.4s ease 1.7s forwards;
+}
+@keyframes nameSweep {
+  0%   { opacity: 0; transform: translateY(40px) scale(0.96); filter: blur(6px); }
+  60%  { opacity: 1; transform: translateY(0)    scale(1.02); filter: blur(0); }
+  100% { opacity: 1; transform: translateY(0)    scale(1);    filter: blur(0); }
+}
+@keyframes ampGlow {
+  0%   { opacity: 0; transform: translateY(-0.4em) scale(0.6); text-shadow: 0 0 0 transparent; }
+  60%  { opacity: 1; transform: translateY(-0.4em) scale(1.15); text-shadow: 0 0 18px rgba(244,217,138,0.85); }
+  100% { opacity: 1; transform: translateY(-0.4em) scale(1);    text-shadow: 0 0 8px rgba(244,217,138,0.4); }
 }
 
 @keyframes fadeUp {
@@ -514,7 +683,18 @@ section {
   align-items: center;
   gap: 1.25rem;
   opacity: 0;
-  animation: fadeUp 1.2s ease 1.7s forwards;
+  /* Keep the date readable above the hero artwork (the hummingbird in bg-hero.png) */
+  position: relative;
+  z-index: 10;
+  padding: 0.55rem 1.4rem;
+  background: rgba(253, 246, 231, 0.92);
+  border: 1px solid rgba(184, 134, 46, 0.45);
+  border-radius: 999px;
+  box-shadow: 0 6px 22px rgba(74, 20, 24, 0.08);
+  backdrop-filter: blur(2px);
+}
+body.entered .hero-date {
+  animation: fadeUp 1.2s ease 2.9s forwards;
 }
 .hero-date span { color: var(--gold-rich); font-weight: 600; }
 .hero-date::before, .hero-date::after {
@@ -528,14 +708,39 @@ section {
   bottom: 1.5rem;
   left: 50%;
   transform: translateX(-50%);
-  z-index: 2;
+  z-index: 11;
   font-family: var(--font-sacred);
   font-size: 0.68rem;
   letter-spacing: 0.4em;
   color: var(--maroon);
   opacity: 0;
-  animation: fadeUp 1s ease 2.4s forwards, bounce 2.5s ease-in-out 3s infinite;
   text-transform: uppercase;
+  /* Make it look and behave like a clickable hint */
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.2rem;
+  min-height: 44px;
+  min-width: 44px;
+  padding: 0.6rem 1.1rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: color 0.3s ease, transform 0.3s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+body.entered .scroll-indicator {
+  animation: fadeUp 1s ease 3.6s forwards, scroll-bounce 2.4s ease-in-out 4.2s infinite;
+}
+.scroll-indicator:hover,
+.scroll-indicator:focus-visible {
+  color: var(--gold-rich);
+  outline: none;
+}
+.scroll-indicator:focus-visible {
+  box-shadow: 0 0 0 2px rgba(184, 134, 46, 0.5);
+  border-radius: 4px;
 }
 .scroll-indicator::after {
   content: '';
@@ -544,6 +749,10 @@ section {
   height: 36px;
   background: linear-gradient(180deg, var(--gold-rich), transparent);
   margin: 0.6rem auto 0;
+}
+@keyframes scroll-bounce {
+  0%, 100% { transform: translate(-50%, 0); }
+  50%      { transform: translate(-50%, 8px); }
 }
 @keyframes bounce {
   0%, 100% { transform: translate(-50%, 0); }
@@ -798,7 +1007,7 @@ section {
 }
 
 /* ============================================
-   COUPLE / MEET THE BRIDE & GROOM
+   COUPLE / MEET THE GROOM & BRIDE
    ============================================ */
 .couple {
   background-image: url('images/bg-couple.png');
@@ -996,6 +1205,13 @@ section {
   margin-top: 1rem;
   opacity: 0.85;
 }
+.footer-closing {
+  font-family: var(--font-script);
+  font-size: clamp(1.6rem, 3.6vw, 2.3rem);
+  color: var(--gold-rich);
+  line-height: 1.2;
+  margin-top: 1.25rem;
+}
 
 /* ============================================
    SCROLL REVEAL
@@ -1040,10 +1256,12 @@ section {
 <!-- ============================================
      LOADER — Real temple doors open
      ============================================ -->
-<div id="loader">
+<div id="loader" role="button" tabindex="0"
+     aria-label="Tap to open the temple doors">
   <div class="loader-center">
     <div class="loader-om">ॐ</div>
     <div class="loader-text">Shubha Aarambham</div>
+    <div class="loader-hint">Tap to enter</div>
   </div>
   <div class="loader-doors">
     <div class="door door-left"></div>
@@ -1054,18 +1272,16 @@ section {
 <!-- Ambient floating petals -->
 <div class="petals" id="petals" aria-hidden="true"></div>
 
-<!-- Background music -->
-<audio id="bgAudio" loop>
+<!-- Background music – autoplays on first user interaction -->
+<audio id="bgAudio" loop preload="auto">
+  <source src="background-music.mp3" type="audio/mpeg">
   <source src="Thandhaay-Downringtone_com.mp3" type="audio/mpeg">
 </audio>
 
-<!-- Audio toggle – bottom right -->
-<button class="audio-toggle" id="audioToggle" aria-label="Toggle music">
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M9 18V5l12-2v13"/>
-    <circle cx="6" cy="18" r="3"/>
-    <circle cx="18" cy="16" r="3"/>
-  </svg>
+<!-- Floating play / pause toggle -->
+<button id="audioToggle" class="audio-toggle" type="button" aria-label="Play music" aria-pressed="false">
+  <svg class="icon-play"  xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13a1 1 0 0 0 1.555.832l10-6.5a1 1 0 0 0 0-1.664l-10-6.5A1 1 0 0 0 8 5.5z"/></svg>
+  <svg class="icon-pause" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z"/></svg>
 </button>
 
 <!-- ============================================
@@ -1084,14 +1300,17 @@ section {
       <span>24</span> · June · <span>2026</span>
     </div>
   </div>
-  <div class="scroll-indicator scroll-indicator-raised">Scroll to begin</div>
+  <button type="button"
+          class="scroll-indicator scroll-indicator-raised"
+          data-scroll-target="#invitation"
+          aria-label="Scroll to invitation">Scroll to begin</button>
 </section>
 
 
 <!-- ============================================
      INVITATION CARD
      ============================================ -->
-<section class="invitation bg-section">
+<section id="invitation" class="invitation bg-section">
   <div class="invitation-content reveal-up">
     <p class="invite-blessing">॥ शुभमस्तु ॥</p>
 
@@ -1137,6 +1356,14 @@ section {
       <strong>Venue</strong>
       347/48, Bhimanpalli Complex,<br>
       Samachar Chowk, Solapur
+      <div>
+        <a class="directions-btn"
+           href="https://maps.app.goo.gl/vvodfHn4expv1KcX8"
+           target="_blank" rel="noopener"
+           aria-label="Get directions to Haldi venue on Google Maps">
+          <span class="pin" aria-hidden="true">📍</span> Get Directions
+        </a>
+      </div>
     </div>
   </div>
 </section>
@@ -1158,6 +1385,14 @@ section {
       New Paccha Peth, Kamtam Vashat,<br>
       MIDC Rd, Solapur,<br>
       Maharashtra 413006
+      <div>
+        <a class="directions-btn"
+           href="https://maps.app.goo.gl/g7qY1xcbRwek538VA"
+           target="_blank" rel="noopener"
+           aria-label="Get directions to Tilak and Sangeet venue on Google Maps">
+          <span class="pin" aria-hidden="true">📍</span> Get Directions
+        </a>
+      </div>
     </div>
   </div>
 </section>
@@ -1173,7 +1408,7 @@ section {
       <div class="muhurtham-date gold-shimmer">24</div>
       <div class="muhurtham-month">June · 2026</div>
       <div class="muhurtham-divider"></div>
-      <div class="muhurtham-time">12:29 PM</div>
+      <div class="muhurtham-time">Muhurtham &middot; 12:29 PM</div>
       <div class="muhurtham-label">Akshada Timing</div>
       <div class="muhurtham-venue">
         <strong>Venue</strong>
@@ -1181,6 +1416,14 @@ section {
         New Paccha Peth, Kamtam Vashat,<br>
         MIDC Rd, Solapur,<br>
         Maharashtra 413006
+        <div>
+          <a class="directions-btn"
+             href="https://maps.app.goo.gl/g7qY1xcbRwek538VA"
+             target="_blank" rel="noopener"
+             aria-label="Get directions to the Wedding venue on Google Maps">
+            <span class="pin" aria-hidden="true">📍</span> Get Directions
+          </a>
+        </div>
       </div>
     </div>
   </div>
@@ -1191,8 +1434,7 @@ section {
      ============================================ -->
 <section class="countdown">
   <div class="container">
-    <div class="section-label reveal-up">The Day Approaches</div>
-    <h2 class="section-title reveal-up">Counting every <em>moment</em></h2>
+    <h2 class="section-title reveal-up">Our Forever <em>Begins In</em></h2>
     <div class="ornament">✦</div>
 
     <div class="countdown-grid">
@@ -1217,12 +1459,12 @@ section {
 </section>
 
 <!-- ============================================
-     MEET THE BRIDE & GROOM
+     MEET THE GROOM & BRIDE
      ============================================ -->
 <section class="couple bg-section">
   <div class="couple-content">
     <div class="couple-text reveal-up">
-      <div class="section-label" style="margin-bottom:1rem;">Meet the Bride &amp; Groom</div>
+      <div class="section-label" style="margin-bottom:1rem;">Meet the Groom &amp; Bride</div>
 
       <div class="couple-portraits">
         <div class="portrait-circle">
@@ -1273,7 +1515,7 @@ section {
 
     <div class="rsvp-buttons reveal-up">
       <a class="rsvp-btn primary"
-         href="https://wa.me/919604345439?text=Namaste!%20I%20would%20be%20delighted%20to%20attend%20Ruthika%20%26%20Kishor's%20wedding%20on%2024th%20June%202026."
+         href="https://wa.me/919604345439?text=Namaste!%20I%20will%20be%20attending%20Ruthika%20%26%20Kishor's%20wedding%20on%2024th%20June%202026.%20We%20will%20be%20%5BX%5D%20people."
          target="_blank" rel="noopener">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
           <path d="M17.5 14.4c-.3-.1-1.7-.8-2-.9-.3-.1-.5-.1-.7.1-.2.3-.7.9-.9 1.1-.2.2-.3.2-.6.1-.3-.1-1.2-.5-2.3-1.4-.9-.8-1.4-1.7-1.6-2-.2-.3 0-.5.1-.6l.4-.5c.1-.2.2-.3.3-.5.1-.2 0-.3 0-.5s-.7-1.7-1-2.3c-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.4s1.1 2.8 1.2 3c.1.2 2.1 3.2 5.1 4.5.7.3 1.3.5 1.7.6.7.2 1.4.2 1.9.1.6-.1 1.7-.7 2-1.4.2-.7.2-1.2.2-1.4-.1-.1-.3-.2-.6-.3z"/>
@@ -1312,23 +1554,93 @@ section {
     <p class="footer-hashtag gold-shimmer">#RuKi</p>
     <div class="ornament" style="margin-top:1.5rem; margin-bottom:1rem;">✦ ❋ ✦</div>
     <p class="footer-meta">Thank You</p>
+    <p class="footer-closing gold-shimmer">With love, Ruthika &amp; Kishor &#127802;</p>
   </div>
 </footer>
 
 <script>
 /* ============================================
-   1. LOADER — Doors open automatically within 1s of page load
+   1. LOADER — Doors open on the user's first tap/click/key press.
+      We wait for an explicit interaction so (a) it feels intentional
+      and (b) it counts as a user gesture, letting the background
+      music begin without browsers blocking autoplay.
    ============================================ */
-window.addEventListener('load', () => {
+(function setupLoader() {
   const loader = document.getElementById('loader');
-  // Remove any pointer-events so door panels are not clickable
-  loader.style.pointerEvents = 'none';
-  setTimeout(() => {
+  if (!loader) return;
+
+  // Freeze background scroll while the loader is on screen.
+  document.body.classList.add('loader-active');
+  const lockScroll = (e) => { e.preventDefault(); };
+  window.addEventListener('wheel',     lockScroll, { passive: false });
+  window.addEventListener('touchmove', lockScroll, { passive: false });
+  const blockScrollKeys = (e) => {
+    if (!document.body.classList.contains('loader-active')) return;
+    if (['ArrowUp','ArrowDown','PageUp','PageDown','Home','End',' '].includes(e.key)) {
+      e.preventDefault();
+    }
+  };
+  window.addEventListener('keydown', blockScrollKeys, { passive: false });
+
+  // Block early taps so the ॐ / aura / sparks / hint reveal always plays through.
+  const LOADER_MIN_MS = 2600;
+  const loaderShownAt = performance.now();
+
+  // Door animation duration (keep in sync with .door CSS transition).
+  const DOOR_MS = 3200;
+
+  let opened = false;
+  let waiting = false;
+  function openDoors() {
+    if (opened || waiting) return;
+    const elapsed = performance.now() - loaderShownAt;
+    if (elapsed < LOADER_MIN_MS) {
+      waiting = true;
+      setTimeout(() => { waiting = false; openDoors(); }, LOADER_MIN_MS - elapsed);
+      return;
+    }
+    opened = true;
+
+    // Start the music at the SAME moment the doors begin to open.
+    const audio = document.getElementById('bgAudio');
+    const toggle = document.getElementById('audioToggle');
+    if (audio) {
+      try { audio.currentTime = 0; } catch (_) {}
+      const p = audio.play();
+      if (p && typeof p.then === 'function') {
+        p.then(() => {
+          if (toggle) {
+            toggle.classList.add('playing');
+            toggle.setAttribute('aria-pressed', 'true');
+            toggle.setAttribute('aria-label', 'Pause music');
+          }
+        }).catch(() => { /* user can still tap the toggle */ });
+      }
+    }
+
     loader.classList.add('open');
-    setTimeout(() => loader.classList.add('gone'), 1900);
-    setTimeout(() => loader.style.display = 'none', 2800);
-  }, 800);
-});
+    // Trigger hero entry animations only AFTER the doors finish parting,
+    // so the names and date are visibly performed for the user.
+    setTimeout(() => document.body.classList.add('entered'), DOOR_MS - 200);
+    setTimeout(() => loader.classList.add('gone'), DOOR_MS);
+    setTimeout(() => {
+      loader.style.display = 'none';
+      document.body.classList.remove('loader-active');
+      window.removeEventListener('wheel',     lockScroll, { passive: false });
+      window.removeEventListener('touchmove', lockScroll, { passive: false });
+      window.removeEventListener('keydown',   blockScrollKeys, { passive: false });
+    }, DOOR_MS + 900);
+  }
+
+  loader.addEventListener('click', openDoors);
+  loader.addEventListener('touchstart', openDoors, { passive: true });
+  loader.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      openDoors();
+    }
+  });
+})();
 
 /* ============================================
    2. FLOATING PETALS (lotus + marigold + jasmine mix)
@@ -1375,6 +1687,20 @@ updateCountdown();
 setInterval(updateCountdown, 1000);
 
 /* ============================================
+   3b. SCROLL-TO-BEGIN — smooth-scroll hero hint to next section
+   ============================================ */
+document.querySelectorAll('[data-scroll-target]').forEach((el) => {
+  el.addEventListener('click', (e) => {
+    const sel = el.getAttribute('data-scroll-target');
+    const target = sel && document.querySelector(sel);
+    if (target) {
+      e.preventDefault();
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  });
+});
+
+/* ============================================
    4. SCROLL REVEAL via IntersectionObserver
    ============================================ */
 const revealObserver = new IntersectionObserver((entries) => {
@@ -1393,110 +1719,94 @@ const countUnits = document.querySelectorAll('.count-unit');
 countUnits.forEach((unit, i) => unit.style.transitionDelay = (i * 0.12) + 's');
 
 /* ============================================
-   5. AUDIO — Autoplay on first user gesture + click to toggle
+   5. AUDIO — Start as early as browser policy allows
    ============================================ */
 const audio = document.getElementById('bgAudio');
-const audioToggle = document.getElementById('audioToggle');
-audio.volume = 0.5;
+const audioBtn = document.getElementById('audioToggle');
+audio.volume = 0.35;
 audio.setAttribute('playsinline', '');
-audio.preload = 'auto';
 
-let audioStarted = false;   // true once unmuted playback has begun
-let userPaused   = false;   // true only when user clicks pause
-
-const iconMusic = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>`;
-const iconPause = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>`;
+let audioStarted = false;
 
 const setBtnState = (playing) => {
-  audioToggle.classList.toggle('playing', playing);
-  audioToggle.innerHTML = playing ? iconPause : iconMusic;
-  audioToggle.setAttribute('aria-label', playing ? 'Pause music' : 'Play music');
+  if (!audioBtn) return;
+  audioBtn.classList.toggle('playing', playing);
+  audioBtn.setAttribute('aria-pressed', playing ? 'true' : 'false');
+  audioBtn.setAttribute('aria-label', playing ? 'Pause music' : 'Play music');
 };
-setBtnState(false);
 
-// Try to start audio unmuted
-const startAudio = () => {
-  if (audioStarted || userPaused) return Promise.resolve();
+const tryPlay = () => {
+  if (audioStarted) return Promise.resolve();
   audio.muted = false;
-  const p = audio.play();
-  return (p && p.then ? p : Promise.resolve()).then(() => {
-    if (!audio.paused && !audio.muted) {
-      audioStarted = true;
-      removeGestureListeners();
-    }
+  return audio.play().then(() => {
+    audioStarted = true;
+    removeGestureListeners();
   });
 };
 
-// Prime the element with muted autoplay so it's ready to switch to unmuted instantly
-const primeMuted = () => {
-  if (audioStarted) return;
-  audio.muted = true;
-  const p = audio.play();
-  if (p && p.catch) p.catch(() => {});
+// Primary: try unmuted autoplay immediately on load
+const attemptUnmutedAutoplay = () => {
+  audio.muted = false;
+  audio.play().then(() => {
+    audioStarted = true;
+  }).catch(() => {
+    // Fallback 1: muted autoplay (allowed by all browsers) — primes the element
+    audio.muted = true;
+    audio.play().catch(() => {});
+    // Fallback 2: unmute on the very first user gesture of ANY kind
+    addGestureListeners();
+  });
 };
 
-// Listen for any user gesture — first one starts the music
 const gestureEvents = [
-  'pointerdown', 'pointermove', 'pointerup',
-  'mousedown', 'mousemove', 'mouseup',
-  'click',
-  'touchstart', 'touchmove', 'touchend',
-  'keydown',
+  'pointerdown', 'pointermove', 'mousedown', 'mousemove',
+  'click', 'touchstart', 'touchmove', 'keydown',
   'scroll', 'wheel'
 ];
 
-const onGesture = () => { startAudio().catch(() => {}); };
+const onGesture = () => { tryPlay().catch(() => {}); };
 
 function addGestureListeners() {
-  gestureEvents.forEach(ev => {
-    window.addEventListener(ev,   onGesture, { passive: true, capture: true });
-    document.addEventListener(ev, onGesture, { passive: true, capture: true });
-  });
+  gestureEvents.forEach(ev =>
+    window.addEventListener(ev, onGesture, { once: true, passive: true, capture: true })
+  );
 }
 function removeGestureListeners() {
-  gestureEvents.forEach(ev => {
-    window.removeEventListener(ev,   onGesture, { capture: true });
-    document.removeEventListener(ev, onGesture, { capture: true });
-  });
+  gestureEvents.forEach(ev =>
+    window.removeEventListener(ev, onGesture, { capture: true })
+  );
 }
 
 // Manual play / pause via the floating button
-audioToggle.addEventListener('click', (e) => {
-  e.stopPropagation();
-  if (audio.paused || audio.muted) {
-    userPaused = false;
-    audio.muted = false;
-    const p = audio.play();
-    if (p && p.then) p.then(() => { audioStarted = true; }).catch(() => {});
-  } else {
-    userPaused = true;
-    audio.pause();
-  }
-});
-
-// Keep button icon synced with actual audio state
-audio.addEventListener('play',         () => setBtnState(!audio.muted));
-audio.addEventListener('playing',      () => setBtnState(!audio.muted));
-audio.addEventListener('pause',        () => setBtnState(false));
-audio.addEventListener('ended',        () => setBtnState(false));
-audio.addEventListener('volumechange', () => setBtnState(!audio.paused && !audio.muted));
-
-// Initialise: wire gesture listeners, try unmuted, fall back to muted prime
-const initAudio = () => {
-  addGestureListeners();
-  startAudio().catch(() => primeMuted());
-};
-
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initAudio, { once: true });
-} else {
-  initAudio();
+if (audioBtn) {
+  audioBtn.addEventListener('click', () => {
+    if (audio.paused || audio.muted) {
+      audio.muted = false;
+      audio.play().then(() => { audioStarted = true; }).catch(() => {});
+    } else {
+      audio.pause();
+    }
+  });
 }
 
-// Retry when the tab becomes visible (for links opened in background tabs)
+// Keep button icon synced with actual audio state
+audio.addEventListener('play',    () => setBtnState(!audio.muted));
+audio.addEventListener('playing', () => setBtnState(!audio.muted));
+audio.addEventListener('pause',   () => setBtnState(false));
+audio.addEventListener('ended',   () => setBtnState(false));
+audio.addEventListener('volumechange', () => setBtnState(!audio.paused && !audio.muted));
+
+// Kick off as soon as possible
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', attemptUnmutedAutoplay, { once: true });
+} else {
+  attemptUnmutedAutoplay();
+}
+
+// Also retry when the tab becomes visible (helps when link is opened in background tab)
 document.addEventListener('visibilitychange', () => {
-  if (!audioStarted && !userPaused && document.visibilityState === 'visible') {
-    startAudio().catch(() => {});
+  if (!audioStarted && document.visibilityState === 'visible') {
+    tryPlay().catch(() => {});
   }
 });
 
